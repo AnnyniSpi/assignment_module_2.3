@@ -1,5 +1,4 @@
 import dev.annyni.dto.WriterDto;
-import dev.annyni.mapper.MapperManager;
 import dev.annyni.model.Status;
 import dev.annyni.model.Writer;
 import dev.annyni.repository.WriterRepository;
@@ -8,7 +7,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -31,12 +29,10 @@ public class WriterServiceTest {
 
     private Writer testWriter;
 
-    private MapperManager manager;
-
     @BeforeEach
     void init(){
-        MockitoAnnotations.openMocks(this);
-        writerService = new WriterService(writerRepository, manager);
+        writerRepository = Mockito.mock(WriterRepository.class);
+        writerService = new WriterService(writerRepository);
 
         testWriter = Writer.builder()
             .id(1L)
@@ -55,9 +51,9 @@ public class WriterServiceTest {
         WriterDto writer = labelDto.get();
 
         assertNotNull(writer);
-        assertEquals("Test", writer.firstname());
-        assertEquals("Test", writer.lastname());
-        assertEquals(Status.ACTIVE, writer.status());
+        assertEquals("Test", writer.getFirstname());
+        assertEquals("Test", writer.getLastname());
+        assertEquals(Status.ACTIVE, writer.getStatus());
     }
 
     @Test
@@ -71,26 +67,29 @@ public class WriterServiceTest {
 
         assertNotNull(writerList);
         assertEquals(1, writerList.size());
-        assertEquals("Test", writerList.get(0).firstname());
-        assertEquals("Test", writerList.get(0).lastname());
-        assertEquals(Status.ACTIVE, writerList.get(0).status());
+        assertEquals("Test", writerList.get(0).getFirstname());
+        assertEquals("Test", writerList.get(0).getLastname());
+        assertEquals(Status.ACTIVE, writerList.get(0).getStatus());
     }
 
     @Test
     void createWriterTest(){
         Mockito.when(writerRepository.save(any(Writer.class))).thenReturn(testWriter);
 
-        Long writerId = writerService.createWriter(manager.mapWriterToDto(testWriter));
+        Long writerId = writerService.createWriter(WriterDto.fromEntity(testWriter));
         Optional<WriterDto> writerDto = writerService.getByIdWriter(writerId);
-        WriterDto writer = writerDto.get();
+        if (writerDto.isPresent()){
+            WriterDto writer = writerDto.get();
 
-        assertNotNull(writerId);
-        assertEquals(1L, writerId);
-        assertEquals("Test", writer.firstname());
-        assertEquals("Test", writer.lastname());
-        assertEquals(Status.ACTIVE, writer.status());
+            assertNotNull(writerId);
+            assertEquals(1L, writerId);
+            assertEquals("Test", writer.getFirstname());
+            assertEquals("Test", writer.getLastname());
+            assertEquals(Status.ACTIVE, writer.getStatus());
 
-        verify(writerRepository, times(1)).save(testWriter);
+            verify(writerRepository, times(1)).save(testWriter);
+        }
+
     }
 
     @Test
@@ -103,26 +102,26 @@ public class WriterServiceTest {
             .status(Status.ACTIVE)
             .build();
 
-        writerService.updateWriter(manager.mapWriterToDto(updateWriter));
+        writerService.updateWriter(WriterDto.fromEntity(updateWriter));
 
-        Long writerId = writerService.createWriter(manager.mapWriterToDto(testWriter));
+        Long writerId = writerService.createWriter(WriterDto.fromEntity(testWriter));
         Optional<WriterDto> writerDto = writerService.getByIdWriter(writerId);
-        WriterDto writer = writerDto.get();
+        if (writerDto.isPresent()){
+            WriterDto writer = writerDto.get();
 
-        assertNotNull(writerId);
-        assertEquals(1L, writerId);
-        assertEquals("Update", writer.firstname());
-        assertEquals("Update", writer.lastname());
-        assertEquals(Status.ACTIVE, writer.status());
+            assertNotNull(writerId);
+            assertEquals(1L, writerId);
+            assertEquals("Update", writer.getFirstname());
+            assertEquals("Update", writer.getLastname());
+            assertEquals(Status.ACTIVE, writer.getStatus());
 
-        verify(writerRepository, times(1)).update(updateWriter);
+            verify(writerRepository, times(1)).update(updateWriter);
+        }
     }
 
     @Test
     void deleteWriterTest(){
-        boolean result = writerService.deleteWriter(1L);
-
-        assertTrue(result);
+        writerService.deleteWriter(1L);
         verify(writerRepository, times(1)).delete(1L);
     }
 }

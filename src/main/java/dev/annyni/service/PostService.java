@@ -1,8 +1,6 @@
 package dev.annyni.service;
 
 import dev.annyni.dto.PostDto;
-import dev.annyni.mapper.MapperManager;
-import dev.annyni.mapper.PostMapper;
 import dev.annyni.model.Post;
 import dev.annyni.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,17 +15,15 @@ import java.util.stream.Collectors;
 public class PostService {
 
     private final PostRepository postRepository;
-//    private final PostMapper postMapper;
-    private final MapperManager manager;
 
     public Long createPost(PostDto postDto) {
-        Post post = manager.mapPostFromDto(postDto);
+        Post post = postDto.toEntity();
         return postRepository.save(post).getId();
     }
 
     public Optional<PostDto> getByIdPost(Long id) {
         return postRepository.findById(id)
-            .map(manager::mapPostToDto);
+            .map(PostDto::fromEntity);
     }
 
     public boolean deletePost(Long id) {
@@ -37,14 +33,14 @@ public class PostService {
     }
 
     public Long updatePost(PostDto postDto) {
-        Post post = manager.mapPostFromDto(postDto);
+        Post post = postDto.toEntity();
         postRepository.update(post);
         return post.getId();
     }
 
     public List<PostDto> getAllPosts(){
         return postRepository.findAll().stream()
-            .map(manager::mapPostToDto)
+            .map(PostDto::fromEntity)
             .collect(Collectors.toList());
     }
 }

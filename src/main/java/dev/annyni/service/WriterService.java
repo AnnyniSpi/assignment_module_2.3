@@ -1,8 +1,6 @@
 package dev.annyni.service;
 
 import dev.annyni.dto.WriterDto;
-import dev.annyni.mapper.MapperManager;
-import dev.annyni.mapper.WriterMapper;
 import dev.annyni.model.Writer;
 import dev.annyni.repository.WriterRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,17 +15,15 @@ import java.util.stream.Collectors;
 public class WriterService {
 
     private final WriterRepository writerRepository;
-//    private final WriterMapper writerMapper;
-    private final MapperManager manager;
 
     public Long createWriter(WriterDto writerDto) {
-        Writer writer = manager.mapWriterFromDto(writerDto);
+        Writer writer = writerDto.toEntity();
         return writerRepository.save(writer).getId();
     }
 
     public Optional<WriterDto> getByIdWriter(Long id) {
         return writerRepository.findById(id)
-            .map(manager::mapWriterToDto);
+            .map(WriterDto::fromEntity);
     }
 
     public boolean deleteWriter(Long id) {
@@ -37,14 +33,14 @@ public class WriterService {
     }
 
     public Long updateWriter(WriterDto writerDto) {
-        Writer writer = manager.mapWriterFromDto(writerDto);
+        Writer writer = writerDto.toEntity();
         writerRepository.update(writer);
         return writer.getId();
     }
 
     public List<WriterDto> getAllWriters(){
         return writerRepository.findAll().stream()
-            .map(manager::mapWriterToDto)
+            .map(WriterDto::fromEntity)
             .collect(Collectors.toList());
     }
 }

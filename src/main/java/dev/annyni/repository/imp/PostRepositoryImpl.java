@@ -79,15 +79,15 @@ public class PostRepositoryImpl implements PostRepository {
         try(SessionFactory sessionFactory = HibernateUtil.buildSessionFactory();
             Session session = sessionFactory.openSession()){
 
-            session.beginTransaction();
-
-            Post post = session.get(Post.class, id);
+            Post post = session.createQuery("select p from Post p " +
+                                            "left join fetch p.labels " +
+                                            "where p.id = :id", Post.class)
+                .setParameter("id", id)
+                .uniqueResult();
 
             if (post == null){
                 throw new RuntimeException("Label not found " +  id);
             }
-
-            session.getTransaction().commit();
 
             return Optional.of(post);
 
@@ -101,14 +101,8 @@ public class PostRepositoryImpl implements PostRepository {
         try(SessionFactory sessionFactory = HibernateUtil.buildSessionFactory();
             Session session = sessionFactory.openSession()){
 
-            session.beginTransaction();
-
-            List<Post> posts = session.createQuery("select p from Post p", Post.class)
+            return session.createQuery("select p from Post p", Post.class)
                 .getResultList();
-
-            session.getTransaction().commit();
-
-            return posts;
 
         } catch (Exception e){
             throw new RuntimeException("Error find all entities!");

@@ -3,10 +3,6 @@ package dev.annyni;
 import dev.annyni.controller.LabelController;
 import dev.annyni.controller.PostController;
 import dev.annyni.controller.WriterController;
-import dev.annyni.mapper.LabelMapper;
-import dev.annyni.mapper.MapperManager;
-import dev.annyni.mapper.PostMapper;
-import dev.annyni.mapper.WriterMapper;
 import dev.annyni.repository.LabelRepository;
 import dev.annyni.repository.PostRepository;
 import dev.annyni.repository.WriterRepository;
@@ -27,26 +23,21 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ProjectFactory {
 
-    private final LabelMapper labelMapper;
-    private final WriterMapper writerMapper;
-    private final PostMapper postMapper;
-    private final MapperManager mapperManager = new MapperManager(labelMapper, postMapper, writerMapper);
-
     private final WriterRepository writerRepository = new WriterRepositoryImpl();
     private final PostRepository postRepository = new PostRepositoryImpl();
     private final LabelRepository labelRepository = new LabelRepositoryImpl();
 
-    private final WriterService writerService = new WriterService(writerRepository, mapperManager);
-    private final PostService postService = new PostService(postRepository, mapperManager);
-    private final LabelService labelService = new LabelService(labelRepository, mapperManager);
+    private final WriterService writerService = new WriterService(writerRepository);
+    private final PostService postService = new PostService(postRepository);
+    private final LabelService labelService = new LabelService(labelRepository);
 
     private final WriterController writerController = new WriterController(writerService);
     private final PostController postController = new PostController(postService);
     private final LabelController labelController = new LabelController(labelService);
 
-    private final WriterView writerView = new WriterView(writerController, postController, mapperManager);
-    private final PostView postView = new PostView(writerController,postController, labelController, mapperManager);
-    private final LabelView labelView = new LabelView(labelController, mapperManager);
+    private final WriterView writerView = new WriterView(writerController, postController);
+    private final PostView postView = new PostView(writerController,postController, labelController);
+    private final LabelView labelView = new LabelView(labelController);
 
     public void writerRun() {
         writerView.printMenu();

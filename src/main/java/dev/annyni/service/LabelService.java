@@ -1,8 +1,6 @@
 package dev.annyni.service;
 
 import dev.annyni.dto.LabelDto;
-import dev.annyni.mapper.LabelMapper;
-import dev.annyni.mapper.MapperManager;
 import dev.annyni.model.Label;
 import dev.annyni.repository.LabelRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,16 +15,15 @@ import java.util.stream.Collectors;
 public class LabelService {
 
     private final LabelRepository labelRepository;
-    private final MapperManager manager;
 
     public Long createLabel(LabelDto labelDto) {
-        Label label = manager.mapLabelFromDto(labelDto);
+        Label label = labelDto.toEntity();
         return labelRepository.save(label).getId();
     }
 
     public Optional<LabelDto> getByIdLabel(Long id) {
         return labelRepository.findById(id)
-            .map(manager::mapLabelToDto);
+            .map(LabelDto::fromEntity);
     }
 
     public boolean deleteLabel(Long id) {
@@ -36,14 +33,14 @@ public class LabelService {
     }
 
     public Long updateLabel(LabelDto labelDto) {
-        Label label = manager.mapLabelFromDto(labelDto);
+        Label label = labelDto.toEntity();
         labelRepository.update(label);
         return label.getId();
     }
 
     public List<LabelDto> getAllLabels(){
         return labelRepository.findAll().stream()
-            .map(manager::mapLabelToDto)
+            .map(LabelDto::fromEntity)
             .collect(Collectors.toList());
     }
 

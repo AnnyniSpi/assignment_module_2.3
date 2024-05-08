@@ -21,8 +21,7 @@ CREATE TABLE label
 (
     id           BIGSERIAL PRIMARY KEY,
     name         VARCHAR(128),
-    label_status VARCHAR(64),
-    post_id      BIGINT REFERENCES post (id)
+    label_status VARCHAR(64)
 );
 
 CREATE TABLE post_label

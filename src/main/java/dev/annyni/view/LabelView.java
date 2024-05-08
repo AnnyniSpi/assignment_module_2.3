@@ -2,8 +2,6 @@ package dev.annyni.view;
 
 import dev.annyni.controller.LabelController;
 import dev.annyni.dto.LabelDto;
-import dev.annyni.mapper.LabelMapper;
-import dev.annyni.mapper.MapperManager;
 import dev.annyni.model.Label;
 import dev.annyni.model.Status;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +17,6 @@ public class LabelView {
 
     private final LabelController labelController;
     private final Scanner scanner = new Scanner(System.in);
-//    private final LabelMapper labelMapper;
-    private final MapperManager manager;
 
     private boolean waiting = true;
 
@@ -124,7 +120,7 @@ public class LabelView {
             .status(status)
             .build();
 
-        labelController.update(manager.mapLabelToDto(newLabel));
+        labelController.update(LabelDto.fromEntity(newLabel));
         System.out.println("Label успешно изменен! " + newLabel);
 
     }
@@ -138,7 +134,7 @@ public class LabelView {
             .status(Status.ACTIVE)
             .build();
 
-        labelController.create(manager.mapLabelToDto(label));
+        labelController.create(LabelDto.fromEntity(label));
 
         System.out.println("Label успешно создан. " + label);
     }

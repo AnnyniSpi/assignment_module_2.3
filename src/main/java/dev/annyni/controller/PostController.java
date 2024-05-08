@@ -14,9 +14,9 @@ public class PostController {
 
     private final PostService postService;
 
-    public Optional<PostDto> getById(Long id){
-        return postService.getByIdPost(id);
-    }
+//    public Optional<PostDto> getById(Long id){
+//        return postService.getByIdPost(id);
+//    }
 
     public List<PostDto> getAll(){
         return postService.getAllPosts();
@@ -30,7 +30,7 @@ public class PostController {
         postService.updatePost(postDto);
     }
 
-    public void delete(Long id){
-        postService.deletePost(id);
-    }
+//    public void delete(Long id){
+//        postService.deletePost(id);
+//    }
 }

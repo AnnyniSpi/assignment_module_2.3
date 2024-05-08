@@ -14,9 +14,9 @@ public class WriterController {
 
     private final WriterService writerService;
 
-    public Optional<WriterDto> getById(Long id){
-        return writerService.getByIdWriter(id);
-    }
+//    public Optional<WriterDto> getById(Long id){
+//        return writerService.getByIdWriter(id);
+//    }
 
     public List<WriterDto> getAll(){
         return writerService.getAllWriters();
@@ -30,7 +30,7 @@ public class WriterController {
         writerService.updateWriter(writerDto);
     }
 
-    public void delete(Long id){
-        writerService.deleteWriter(id);
-    }
+//    public void delete(Long id){
+//        writerService.deleteWriter(id);
+//    }
 }

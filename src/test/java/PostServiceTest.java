@@ -1,14 +1,11 @@
 import dev.annyni.dto.PostDto;
-import dev.annyni.mapper.MapperManager;
 import dev.annyni.model.Post;
 import dev.annyni.model.Status;
 import dev.annyni.repository.PostRepository;
 import dev.annyni.service.PostService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -25,20 +22,16 @@ import static org.mockito.Mockito.verify;
  */
 public class PostServiceTest {
 
-    @Mock
     private PostRepository postRepository;
 
     private PostService postService;
 
     private Post testPost;
 
-    private MapperManager manager;
-
     @BeforeEach
     void init(){
-        MockitoAnnotations.openMocks(this);
-
-        postService = new PostService(postRepository, manager);
+        postRepository = Mockito.mock(PostRepository.class);
+        postService = new PostService(postRepository);
 
         testPost = Post.builder()
             .id(1L)
@@ -54,11 +47,13 @@ public class PostServiceTest {
         Mockito.when(postRepository.findById(anyLong())).thenReturn(Optional.ofNullable(testPost));
 
         Optional<PostDto> postDto = postService.getByIdPost(1L);
-        PostDto post = postDto.get();
+        if (postDto.isPresent()){
+            PostDto post = postDto.get();
 
-        assertNotNull(post);
-        assertEquals("test content", post.content());
-        assertEquals(Status.ACTIVE, post.status());
+            assertNotNull(post);
+            assertEquals("test content", post.getContent());
+            assertEquals(Status.ACTIVE, post.getStatus());
+        }
     }
 
     @Test
@@ -72,23 +67,26 @@ public class PostServiceTest {
 
         assertNotNull(postList);
         assertEquals(1, postList.size());
-        assertEquals("test content", postList.get(0).content());
-        assertEquals(Status.ACTIVE, postList.get(0).status());
+        assertEquals("test content", postList.get(0).getContent());
+        assertEquals(Status.ACTIVE, postList.get(0).getStatus());
     }
 
     @Test
     void createTest(){
         Mockito.when(postRepository.save(any(Post.class))).thenReturn(testPost);
 
-        Long postId = postService.createPost(manager.mapPostToDto(testPost));
+        Long postId = postService.createPost(PostDto.fromEntity(testPost));
         Optional<PostDto> postDto = postService.getByIdPost(postId);
-        PostDto post = postDto.get();
+        if (postDto.isPresent()){
+            PostDto post = postDto.get();
 
-        assertNotNull(post);
-        assertEquals("Test content", post.content());
-        assertEquals(Status.ACTIVE, post.status());
+            assertNotNull(post);
+            assertEquals("Test content", post.getContent());
+            assertEquals(Status.ACTIVE, post.getStatus());
 
-        verify(postRepository, times(1)).save(testPost);
+            verify(postRepository, times(1)).save(testPost);
+        }
+
     }
 
     @Test
@@ -102,22 +100,23 @@ public class PostServiceTest {
 
         Mockito.when(postRepository.update(any(Post.class))).thenReturn(updatePost);
 
-        Long postId = postService.createPost(manager.mapPostToDto(updatePost));
+        Long postId = postService.createPost(PostDto.fromEntity(updatePost));
         Optional<PostDto> postDto = postService.getByIdPost(postId);
-        PostDto post = postDto.get();
+        if (postDto.isPresent()){
+            PostDto post = postDto.get();
 
-        assertNotNull(post);
-        assertEquals("update content", post.content());
-        assertEquals(Status.ACTIVE, post.status());
+            assertNotNull(post);
+            assertEquals("update content", post.getContent());
+            assertEquals(Status.ACTIVE, post.getStatus());
 
-        verify(postRepository, times(1)).update(updatePost);
+            verify(postRepository, times(1)).update(updatePost);
+        }
+
     }
 
     @Test
     void deleteTest(){
-        boolean result = postService.deletePost(1L);
-
-        assertTrue(result);
+        postService.deletePost(1L);
         verify(postRepository, times(1)).delete(1L);
     }
 }

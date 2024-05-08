@@ -2,10 +2,8 @@ package dev.annyni.view;
 
 import dev.annyni.controller.PostController;
 import dev.annyni.controller.WriterController;
+import dev.annyni.dto.PostDto;
 import dev.annyni.dto.WriterDto;
-import dev.annyni.mapper.MapperManager;
-import dev.annyni.mapper.PostMapper;
-import dev.annyni.mapper.WriterMapper;
 import dev.annyni.model.Label;
 import dev.annyni.model.Post;
 import dev.annyni.model.Status;
@@ -22,9 +20,6 @@ public class WriterView {
 
     private final WriterController writerController;
     private final PostController postController;
-    private final MapperManager manager;
-//    private final WriterMapper writerMapper;
-//    private final PostMapper postMapper;
     private final Scanner scanner = new Scanner(System.in);
 
     private boolean waiting = true;
@@ -81,7 +76,7 @@ public class WriterView {
         System.out.println("Введите id Writer который хотите удалить: ");
 
         long id = scanner.nextLong();
-        writerController.delete(id);
+//        writerController.delete(id);
 
         System.out.println("Writer удален!");
 
@@ -102,9 +97,9 @@ public class WriterView {
 
         Long writerId = scanner.nextLong();
 
-        Optional<WriterDto> writer = writerController.getById(writerId);
-
-        System.out.println("Writer успешно найден! " + writer);
+//        Optional<WriterDto> writer = writerController.getById(writerId);
+//
+//        System.out.println("Writer успешно найден! " + writer);
     }
 
     private void updateWriter() {
@@ -151,7 +146,7 @@ public class WriterView {
             .posts(new ArrayList<>())
             .build();
 
-        writerController.update(manager.mapWriterToDto(writer));
+        writerController.update(WriterDto.fromEntity(writer));
         System.out.println("Writer успешно изменен! " + writer);
 
     }
@@ -170,7 +165,7 @@ public class WriterView {
             .posts(new ArrayList<>())
             .build();
 
-        writerController.create(manager.mapWriterToDto(writer));
+        writerController.create(WriterDto.fromEntity(writer));
 
         System.out.println("Writer успешно создан. " + writer);
 
@@ -182,7 +177,7 @@ public class WriterView {
         switch (choice){
             case 1 -> {
                 Post post = addPost(writer);
-                postController.create(manager.mapPostToDto(post));
+                postController.create(PostDto.fromEntity(post));
             }
             case 2 -> {
                 System.out.println("Вы вернулись в главное меню");

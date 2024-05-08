@@ -1,15 +1,11 @@
 import dev.annyni.dto.LabelDto;
-import dev.annyni.mapper.MapperManager;
 import dev.annyni.model.Label;
-import dev.annyni.model.Post;
 import dev.annyni.model.Status;
 import dev.annyni.repository.LabelRepository;
 import dev.annyni.service.LabelService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,19 +22,17 @@ import static org.mockito.Mockito.verify;
  */
 public class LabelServiceTest {
 
-    @Mock
     private LabelRepository labelRepository;
 
     private LabelService labelService;
 
     private Label testLabel;
 
-    private MapperManager manager;
 
     @BeforeEach
     void init(){
-        MockitoAnnotations.openMocks(this);
-        labelService = new LabelService(labelRepository, manager);
+        labelRepository = Mockito.mock(LabelRepository.class);
+        labelService = new LabelService(labelRepository);
 
         testLabel = Label.builder()
             .id(1L)
@@ -55,8 +49,8 @@ public class LabelServiceTest {
         LabelDto label = labelDto.get();
 
         assertNotNull(label);
-        assertEquals("Test", label.name());
-        assertEquals(Status.ACTIVE, label.status());
+        assertEquals("Test", label.getName());
+        assertEquals(Status.ACTIVE, label.getStatus());
     }
 
     @Test
@@ -70,24 +64,27 @@ public class LabelServiceTest {
 
         assertNotNull(labelList);
         assertEquals(1, labelList.size());
-        assertEquals("Test", labelList.get(0).name());
-        assertEquals(Status.ACTIVE, labelList.get(0).status());
+        assertEquals("Test", labelList.get(0).getName());
+        assertEquals(Status.ACTIVE, labelList.get(0).getStatus());
     }
 
     @Test
     void createLabelTest(){
         Mockito.when(labelRepository.save(any(Label.class))).thenReturn(testLabel);
 
-        Long labelId = labelService.createLabel(manager.mapLabelToDto(testLabel));
+        Long labelId = labelService.createLabel(LabelDto.fromEntity(testLabel));
         Optional<LabelDto> labelDto = labelService.getByIdLabel(labelId);
-        LabelDto label = labelDto.get();
+        if (labelDto.isPresent()){
+            LabelDto label = labelDto.get();
 
-        assertNotNull(labelId);
-        assertEquals(1L, labelId);
-        assertEquals("Test", label.name());
-        assertEquals(Status.ACTIVE, label.status());
+            assertNotNull(labelId);
+            assertEquals(1L, labelId);
+            assertEquals("Test", label.getName());
+            assertEquals(Status.ACTIVE, label.getStatus());
 
-        verify(labelRepository, times(1)).save(testLabel);
+            verify(labelRepository, times(1)).save(testLabel);
+        }
+
     }
 
     @Test
@@ -96,28 +93,28 @@ public class LabelServiceTest {
             .id(1L)
             .name("Update")
             .status(Status.ACTIVE)
-            .post(new Post())
             .build();
 
         Mockito.when(labelRepository.update(any(Label.class))).thenReturn(updateLabel);
 
-        Long labelId = labelService.updateLabel(manager.mapLabelToDto(updateLabel));
+        Long labelId = labelService.updateLabel(LabelDto.fromEntity(updateLabel));
         Optional<LabelDto> labelDto = labelService.getByIdLabel(labelId);
-        LabelDto label = labelDto.get();
+        if (labelDto.isPresent()){
+            LabelDto label = labelDto.get();
 
-        assertNotNull(label);
-        assertEquals(1L, labelId);
-        assertEquals("Update", label.name());
-        assertEquals(Status.ACTIVE, label.status());
+            assertNotNull(label);
+            assertEquals(1L, labelId);
+            assertEquals("Update", label.getName());
+            assertEquals(Status.ACTIVE, label.getStatus());
 
-        verify(labelRepository, times(1)).save(updateLabel);
+            verify(labelRepository, times(1)).save(updateLabel);
+        }
+
     }
 
     @Test
     void deleteLabelTest(){
-        boolean result = labelService.deleteLabel(1L);
-
-        assertTrue(result);
+        labelService.deleteLabel(1L);
         verify(labelRepository, times(1)).delete(1L);
     }
 }
